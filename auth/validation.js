@@ -25,33 +25,62 @@ const createStoreValidationRules = () => {
     ]
 }
 
-const storeExistValidationRule = () => {
+const createCustomerValidation = () => {
     return [
-        check('id').custom((value, { req }) => {
-            return new Promise((resolve, reject) => {
-                pool.query(
-                    `SELECT COUNT(*) as exist FROM green_pay.store_user WHERE id = ?`,
-                    [value],
-                    (error, results, fields) => {
-                        if (error) {
-                            reject(new Error('Something went wrong'))
-                        } else {
-                            if (results[0].exist) {
-                                resolve(true)
-                            } else {
-                                reject(new Error('Store User does not exist'))
-                            }
-                        }
-                    }
-                );
-            });
-        }),
+        check('customer_name', 'Customer Name is required').notEmpty(),
+        check('customer_type', 'Customer Type is required').notEmpty(),
+        check('customer_type', 'Customer Type should either be monthly or daily').isIn(['monthly', 'daily']),
+        check('customer_topup', 'Customer Topup is required').notEmpty(),
+        check('customer_topup', 'Customer Topup must be numeric').isNumeric(),
+        check('customer_phone', 'Customer Phone is required').notEmpty(),
+        check('customer_phone', 'Customer Phone should be greater than 9 and less than 13').isLength({ min: 10, max: 12 }),
+        check('company_name', 'Company Name is required').notEmpty(),
+        check('customer_barcode', 'Customer Barcode is required').notEmpty(),
+        check('customer_remarks', 'Customer Remarks is required').notEmpty(),
+        check('customer_breakfast', 'Customer Breakfast is required').notEmpty(),
+        check('customer_lunch', 'Customer Lunch is required').notEmpty(),
+        check('customer_dinner', 'Customer Dinner is required').notEmpty(),
+        check('customer_start_date', 'Customer Start Date is required').notEmpty(),
+        check('customer_start_date', 'Customer Start Date must be in date format YYYY-MM-DD').isISO8601(),
     ]
 }
 
+const existValidationRule = (entity) => {
+
+    switch (entity) {
+        case 'store_user':
+        case 'customer':
+            return [
+                check('id').custom((value, { req }) => {
+                    return new Promise((resolve, reject) => {
+                        pool.query(
+                            `SELECT COUNT(*) as exist FROM green_pay.${entity} WHERE id = ?`,
+                            [value],
+                            (error, results, fields) => {
+                                if (error) {
+                                    reject(new Error('Something went wrong'))
+                                } else {
+                                    if (results[0].exist) {
+                                        resolve(true)
+                                    } else {
+                                        reject(new Error(`${entity} does not exist`))
+                                    }
+                                }
+                            }
+                        );
+                    });
+                }),
+            ]
+        default:
+            break;
+    }
+
+
+}
 
 module.exports = {
     createStoreValidationRules,
-    storeExistValidationRule,
+    createCustomerValidation,
+    existValidationRule,
     validate,
 }

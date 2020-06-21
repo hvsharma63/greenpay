@@ -150,19 +150,15 @@ module.exports = {
     },
 
     delete_customer_byid: (data, callBack) => {
-        const message = "User not found, please try again!"
         pool.query(
             `select * from customer where id = ?`,
-            [data.customer_id],
+            [data.id],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);
                 }
 
-                console.log(results.length, "DD")
-
                 if (results.length !== 0) {
-                    console.log("IN DELETE");
                     pool.query(
                         `delete from customer where id = ?`,
                         [data.customer_id],

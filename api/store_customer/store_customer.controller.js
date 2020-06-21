@@ -3,6 +3,7 @@ const { createCustomer, get_all_customer, get_customer_byid, delete_customer_byi
 module.exports = {
 
     createCustomer: (req, res) => {
+        console.log(req.body);
         var body = req.body;
         createCustomer(body, (err, results) => {
             if (err) {
