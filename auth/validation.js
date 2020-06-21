@@ -45,42 +45,60 @@ const createCustomerValidation = () => {
     ]
 }
 
+
+const createStoreItemValidation = () => {
+    return [
+        check('store_id').custom((value, { req }) => {
+            return checkExists(value, 'store_user');
+        }),
+        check('item_name', 'Item Name is required').notEmpty(),
+        check('item_description', 'Item Description is required').notEmpty(),
+        check('item_price', 'Item Price is required').notEmpty(),
+        check('item_price', 'Item Price must be numeric').isNumeric(),
+    ]
+}
+
 const existValidationRule = (entity) => {
 
     switch (entity) {
         case 'store_user':
         case 'customer':
+        case 'store_item':
             return [
                 check('id').custom((value, { req }) => {
-                    return new Promise((resolve, reject) => {
-                        pool.query(
-                            `SELECT COUNT(*) as exist FROM green_pay.${entity} WHERE id = ?`,
-                            [value],
-                            (error, results, fields) => {
-                                if (error) {
-                                    reject(new Error('Something went wrong'))
-                                } else {
-                                    if (results[0].exist) {
-                                        resolve(true)
-                                    } else {
-                                        reject(new Error(`${entity} does not exist`))
-                                    }
-                                }
-                            }
-                        );
-                    });
+                    return checkExists(value, entity);
                 }),
             ]
         default:
             break;
     }
 
+}
 
+const checkExists = (value, entity) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT COUNT(*) as exist FROM green_pay.${entity} WHERE id = ?`,
+            [value],
+            (error, results, fields) => {
+                if (error) {
+                    reject(new Error('Something went wrong'))
+                } else {
+                    if (results[0].exist) {
+                        resolve(true)
+                    } else {
+                        reject(new Error(`${entity} does not exist`))
+                    }
+                }
+            }
+        );
+    });
 }
 
 module.exports = {
     createStoreValidationRules,
     createCustomerValidation,
+    createStoreItemValidation,
     existValidationRule,
     validate,
 }
