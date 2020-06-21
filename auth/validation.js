@@ -1,4 +1,5 @@
 const { check, validationResult } = require('express-validator')
+const pool = require("./../config/database");
 
 const validate = (req, res, next) => {
     const errors = validationResult(req)
@@ -24,7 +25,33 @@ const createStoreValidationRules = () => {
     ]
 }
 
+const updateStoreValidationRules = () => {
+    return [
+        check('id').custom((value, { req }) => {
+            return new Promise((resolve, reject) => {
+                pool.query(
+                    `SELECT COUNT(*) as exist FROM green_pay.store_user WHERE id = ?`,
+                    [value],
+                    (error, results, fields) => {
+                        if (error) {
+                            reject(new Error('Something went wrong'))
+                        } else {
+                            if (results[0].exist) {
+                                resolve(true)
+                            } else {
+                                reject(new Error('Store User does not exist'))
+                            }
+                        }
+                    }
+                );
+            });
+        }),
+    ]
+}
+
+
 module.exports = {
     createStoreValidationRules,
+    updateStoreValidationRules,
     validate,
 }
