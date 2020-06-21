@@ -53,7 +53,7 @@ module.exports = {
     getStoreById: (data, callBack) => {
         pool.query(
             `select * from store_user where id = ?`,
-            [data.store_id],
+            [data.id],
             (error, results, fields) => {
                 if (error) {
                     callBack(error);
