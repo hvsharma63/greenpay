@@ -25,7 +25,7 @@ const createStoreValidationRules = () => {
     ]
 }
 
-const updateStoreValidationRules = () => {
+const storeExistValidationRule = () => {
     return [
         check('id').custom((value, { req }) => {
             return new Promise((resolve, reject) => {
@@ -52,6 +52,6 @@ const updateStoreValidationRules = () => {
 
 module.exports = {
     createStoreValidationRules,
-    updateStoreValidationRules,
+    storeExistValidationRule,
     validate,
 }

@@ -99,7 +99,7 @@ module.exports = {
         console.log(data, "DJ DATA")
         pool.query(
             `delete  from store_user where id = ?`,
-            [data.store_id],
+            [data.id],
             (error, results, fields) => {
                 if (error) {
                     return callBack(error);

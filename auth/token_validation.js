@@ -13,6 +13,7 @@ module.exports = {
                     });
                 }
                 else {
+                    req.user = decoded.result;
                     next();
                 }
             });
